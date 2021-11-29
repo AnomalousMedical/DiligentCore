@@ -49,24 +49,38 @@ static const INTERFACE_ID IID_Archiver =
 
 // clang-format off
 
+DILIGENT_TYPED_ENUM(ARCHIVED_DEVICE_TYPE_FLAGS, Uint32)
+{
+    ARCHIVED_DEVICE_TYPE_FLAG_NONE        = 0u,                                ///< Undefined device
+    ARCHIVED_DEVICE_TYPE_FLAG_D3D11       = 1u << RENDER_DEVICE_TYPE_D3D11,    ///< D3D11 device
+    ARCHIVED_DEVICE_TYPE_FLAG_D3D12       = 1u << RENDER_DEVICE_TYPE_D3D12,    ///< D3D12 device
+    ARCHIVED_DEVICE_TYPE_FLAG_GL          = 1u << RENDER_DEVICE_TYPE_GL,       ///< OpenGL device
+    ARCHIVED_DEVICE_TYPE_FLAG_GLES        = 1u << RENDER_DEVICE_TYPE_GLES,     ///< OpenGLES device
+    ARCHIVED_DEVICE_TYPE_FLAG_VULKAN      = 1u << RENDER_DEVICE_TYPE_VULKAN,   ///< Vulkan device
+    ARCHIVED_DEVICE_TYPE_FLAG_METAL_MACOS = 1u << RENDER_DEVICE_TYPE_METAL,    ///< Metal device for MacOS
+    ARCHIVED_DEVICE_TYPE_FLAG_METAL_IOS   = 2u << RENDER_DEVICE_TYPE_METAL,    ///< Metal device for iOS
+    ARCHIVED_DEVICE_TYPE_FLAG_LAST        = ARCHIVED_DEVICE_TYPE_FLAG_METAL_IOS
+};
+DEFINE_FLAG_ENUM_OPERATORS(ARCHIVED_DEVICE_TYPE_FLAGS)
+
 /// Pipeline state archive info
 struct PipelineStateArchiveInfo
 {
     /// Pipeline state archive flags, see Diligent::PSO_ARCHIVE_FLAGS.
     PSO_ARCHIVE_FLAGS Flags DEFAULT_INITIALIZER(PSO_ARCHIVE_FLAG_NONE);
 
-    /// Bitset of Diligent::RENDER_DEVICE_TYPE_FLAGS.
+    /// Bitset of Diligent::ARCHIVED_DEVICE_TYPE_FLAGS.
     /// Specifies for which backends the pipeline state can be created.
-    RENDER_DEVICE_TYPE_FLAGS DeviceFlags DEFAULT_INITIALIZER(RENDER_DEVICE_TYPE_FLAG_NONE);
+    ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags DEFAULT_INITIALIZER(ARCHIVED_DEVICE_TYPE_FLAG_NONE);
 };
 typedef struct PipelineStateArchiveInfo PipelineStateArchiveInfo;
 
 // Pipeline resource signature archive info
 struct ResourceSignatureArchiveInfo
 {
-    /// Bitset of RENDER_DEVICE_TYPE_FLAGS.
+    /// Bitset of ARCHIVED_DEVICE_TYPE_FLAGS.
     /// Specifies for which backends the resource signature can be created.
-    RENDER_DEVICE_TYPE_FLAGS DeviceFlags DEFAULT_INITIALIZER(RENDER_DEVICE_TYPE_FLAG_NONE);
+    ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags DEFAULT_INITIALIZER(ARCHIVED_DEVICE_TYPE_FLAG_NONE);
 };
 typedef struct ResourceSignatureArchiveInfo ResourceSignatureArchiveInfo;
 

@@ -761,12 +761,12 @@ void SerializerPSOImpl(Serializer<Mode>&                                 Ser,
     } while (false)
 
 template <typename PRSMapType>
-void ValidatePipelineStateArchiveInfo(const PipelineStateCreateInfo&  PSOCreateInfo,
-                                      const PipelineStateArchiveInfo& ArchiveInfo,
-                                      const PRSMapType&               PRSMap,
-                                      const RENDER_DEVICE_TYPE_FLAGS  ValidDeviceFlags) noexcept(false)
+void ValidatePipelineStateArchiveInfo(const PipelineStateCreateInfo&   PSOCreateInfo,
+                                      const PipelineStateArchiveInfo&  ArchiveInfo,
+                                      const PRSMapType&                PRSMap,
+                                      const ARCHIVED_DEVICE_TYPE_FLAGS ValidDeviceFlags) noexcept(false)
 {
-    VERIFY_PSO(ArchiveInfo.DeviceFlags != RENDER_DEVICE_TYPE_FLAG_NONE, "At least one bit must be set in DeviceFlags");
+    VERIFY_PSO(ArchiveInfo.DeviceFlags != ARCHIVED_DEVICE_TYPE_FLAG_NONE, "At least one bit must be set in DeviceFlags");
     VERIFY_PSO((ArchiveInfo.DeviceFlags & ValidDeviceFlags) == ArchiveInfo.DeviceFlags, "DeviceFlags contain unsupported device type");
 
     VERIFY_PSO(PSOCreateInfo.PSODesc.Name != nullptr, "Pipeline name in PSOCreateInfo.PSODesc.Name must not be null");

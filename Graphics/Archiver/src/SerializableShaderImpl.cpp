@@ -34,10 +34,10 @@
 namespace Diligent
 {
 
-SerializableShaderImpl::SerializableShaderImpl(IReferenceCounters*      pRefCounters,
-                                               SerializationDeviceImpl* pDevice,
-                                               const ShaderCreateInfo&  InShaderCI,
-                                               RENDER_DEVICE_TYPE_FLAGS DeviceFlags) :
+SerializableShaderImpl::SerializableShaderImpl(IReferenceCounters*        pRefCounters,
+                                               SerializationDeviceImpl*   pDevice,
+                                               const ShaderCreateInfo&    InShaderCI,
+                                               ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags) :
     TBase{pRefCounters},
     m_pDevice{pDevice},
     m_CreateInfo{InShaderCI}

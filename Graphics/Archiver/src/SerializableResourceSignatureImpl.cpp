@@ -102,7 +102,7 @@ void SerializableResourceSignatureImpl::AddPRSDesc(const PipelineResourceSignatu
 SerializableResourceSignatureImpl::SerializableResourceSignatureImpl(IReferenceCounters*                  pRefCounters,
                                                                      SerializationDeviceImpl*             pDevice,
                                                                      const PipelineResourceSignatureDesc& Desc,
-                                                                     RENDER_DEVICE_TYPE_FLAGS             DeviceFlags,
+                                                                     ARCHIVED_DEVICE_TYPE_FLAGS           DeviceFlags,
                                                                      SHADER_TYPE                          ShaderStages) :
     TBase{pRefCounters}
 {
@@ -159,7 +159,7 @@ SerializableResourceSignatureImpl::~SerializableResourceSignatureImpl()
 {
 }
 
-bool SerializableResourceSignatureImpl::IsCompatible(const SerializableResourceSignatureImpl& Rhs, RENDER_DEVICE_TYPE_FLAGS DeviceFlags) const
+bool SerializableResourceSignatureImpl::IsCompatible(const SerializableResourceSignatureImpl& Rhs, ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags) const
 {
     for (auto DeviceBits = DeviceFlags; DeviceBits != 0;)
     {

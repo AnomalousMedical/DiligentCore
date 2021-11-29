@@ -33,6 +33,7 @@
 #include "../../GraphicsEngine/interface/Shader.h"
 #include "../../GraphicsEngine/interface/RenderPass.h"
 #include "../../GraphicsEngine/interface/PipelineResourceSignature.h"
+#include "Archiver.h"
 
 DILIGENT_BEGIN_NAMESPACE(Diligent)
 
@@ -172,14 +173,14 @@ DILIGENT_BEGIN_INTERFACE(ISerializationDevice, IRenderDevice)
     /// Creates a serialized shader.
     VIRTUAL void METHOD(CreateShader)(THIS_
                                       const ShaderCreateInfo REF ShaderCI,
-                                      RENDER_DEVICE_TYPE_FLAGS   DeviceFlags,
-                                      IShader**                  ppShader) PURE;
+                                      ARCHIVED_DEVICE_TYPE_FLAGS  DeviceFlags,
+                                      IShader**                   ppShader) PURE;
 
  
     /// Creates a serialized pipeline resource signature.
     VIRTUAL void METHOD(CreatePipelineResourceSignature)(THIS_
                                                          const PipelineResourceSignatureDesc REF Desc,
-                                                         RENDER_DEVICE_TYPE_FLAGS                DeviceFlags,
+                                                         ARCHIVED_DEVICE_TYPE_FLAGS              DeviceFlags,
                                                          IPipelineResourceSignature**            ppSignature) PURE;
 
     /// Populates an array of pipeline resource bindings.

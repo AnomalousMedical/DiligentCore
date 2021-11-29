@@ -48,26 +48,30 @@ using namespace Diligent::Testing;
 namespace
 {
 
-static constexpr RENDER_DEVICE_TYPE_FLAGS GetDeviceBits()
+static constexpr ARCHIVED_DEVICE_TYPE_FLAGS GetDeviceBits()
 {
-    RENDER_DEVICE_TYPE_FLAGS DeviceBits = RENDER_DEVICE_TYPE_FLAG_NONE;
+    ARCHIVED_DEVICE_TYPE_FLAGS DeviceBits = ARCHIVED_DEVICE_TYPE_FLAG_NONE;
 #if D3D11_SUPPORTED
-    DeviceBits = DeviceBits | RENDER_DEVICE_TYPE_FLAG_D3D11;
+    DeviceBits = DeviceBits | ARCHIVED_DEVICE_TYPE_FLAG_D3D11;
 #endif
 #if D3D12_SUPPORTED
-    DeviceBits = DeviceBits | RENDER_DEVICE_TYPE_FLAG_D3D12;
+    DeviceBits = DeviceBits | ARCHIVED_DEVICE_TYPE_FLAG_D3D12;
 #endif
 #if GL_SUPPORTED
-    DeviceBits = DeviceBits | RENDER_DEVICE_TYPE_FLAG_GL;
+    DeviceBits = DeviceBits | ARCHIVED_DEVICE_TYPE_FLAG_GL;
 #endif
 #if GLES_SUPPORTED
-    DeviceBits = DeviceBits | RENDER_DEVICE_TYPE_FLAG_GLES;
+    DeviceBits = DeviceBits | ARCHIVED_DEVICE_TYPE_FLAG_GLES;
 #endif
 #if VULKAN_SUPPORTED
-    DeviceBits = DeviceBits | RENDER_DEVICE_TYPE_FLAG_VULKAN;
+    DeviceBits = DeviceBits | ARCHIVED_DEVICE_TYPE_FLAG_VULKAN;
 #endif
 #if METAL_SUPPORTED
-    DeviceBits = DeviceBits | RENDER_DEVICE_TYPE_FLAG_METAL;
+#    if PLATFORM_MACOS
+    DeviceBits = DeviceBits | ARCHIVED_DEVICE_TYPE_FLAG_METAL_MACOS;
+#    else
+    DeviceBits = DeviceBits | ARCHIVED_DEVICE_TYPE_FLAG_METAL_IOS;
+#    endif
 #endif
     return DeviceBits;
 }
@@ -75,7 +79,7 @@ static constexpr RENDER_DEVICE_TYPE_FLAGS GetDeviceBits()
 static void ArchivePRS(RefCntAutoPtr<IArchive>&                   pSource,
                        RefCntAutoPtr<IPipelineResourceSignature>& pRefPRS_1,
                        RefCntAutoPtr<IPipelineResourceSignature>& pRefPRS_2,
-                       RENDER_DEVICE_TYPE_FLAGS                   DeviceBits)
+                       ARCHIVED_DEVICE_TYPE_FLAGS                 DeviceBits)
 {
 
     constexpr char PRS1Name[] = "PRS archive test - 1";
@@ -252,7 +256,7 @@ TEST(ArchiveTest, RemoveDeviceData)
     if (!pDearchiver || !pArchiverFactory)
         GTEST_SKIP() << "Archiver library is not loaded";
 
-    const auto CurrentDeviceFlag = static_cast<RENDER_DEVICE_TYPE_FLAGS>(1u << pDevice->GetDeviceInfo().Type);
+    const auto CurrentDeviceFlag = static_cast<ARCHIVED_DEVICE_TYPE_FLAGS>(1u << pDevice->GetDeviceInfo().Type);
     const auto AllDeviceFlags    = GetDeviceBits();
 
     if ((AllDeviceFlags & ~CurrentDeviceFlag) == 0)
@@ -290,7 +294,7 @@ TEST(ArchiveTest, AppendDeviceData)
     if (!pDearchiver || !pArchiverFactory)
         GTEST_SKIP() << "Archiver library is not loaded";
 
-    const auto CurrentDeviceFlag = static_cast<RENDER_DEVICE_TYPE_FLAGS>(1u << pDevice->GetDeviceInfo().Type);
+    const auto CurrentDeviceFlag = static_cast<ARCHIVED_DEVICE_TYPE_FLAGS>(1u << pDevice->GetDeviceInfo().Type);
     auto       AllDeviceFlags    = GetDeviceBits() & ~CurrentDeviceFlag;
 
     if (AllDeviceFlags == 0)
@@ -1152,7 +1156,7 @@ TEST(ArchiveTest, RayTracingPipeline)
     pArchiverFactory->CreateSerializationDevice(DeviceCI, &pSerializationDevice);
     ASSERT_NE(pSerializationDevice, nullptr);
 
-    const auto DeviceBits = GetDeviceBits() & (RENDER_DEVICE_TYPE_FLAG_D3D12 | RENDER_DEVICE_TYPE_FLAG_VULKAN);
+    const auto DeviceBits = GetDeviceBits() & (ARCHIVED_DEVICE_TYPE_FLAG_D3D12 | ARCHIVED_DEVICE_TYPE_FLAG_VULKAN);
 
     RefCntAutoPtr<IPipelineState>       pRefPSO;
     RefCntAutoPtr<IDeviceObjectArchive> pArchive;
@@ -1465,7 +1469,7 @@ TEST(ArchiveTest, ResourceSignatureBindings)
     pArchiverFactory->CreateSerializationDevice(SerializationDeviceCreateInfo{}, &pSerializationDevice);
     ASSERT_NE(pSerializationDevice, nullptr);
 
-    for (auto AllDeviceBits = GetDeviceBits(); AllDeviceBits != 0;)
+    for (auto AllDeviceBits = GetDeviceBits() & ~ARCHIVED_DEVICE_TYPE_FLAG_METAL_IOS; AllDeviceBits != 0;)
     {
         const auto DeviceBit  = ExtractLSB(AllDeviceBits);
         const auto DeviceType = static_cast<RENDER_DEVICE_TYPE>(PlatformMisc::GetLSB(DeviceBit));

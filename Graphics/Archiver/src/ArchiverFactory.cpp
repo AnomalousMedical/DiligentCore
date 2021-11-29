@@ -76,8 +76,8 @@ public:
     virtual void DILIGENT_CALL_TYPE CreateArchiver(ISerializationDevice* pDevice, IArchiver** ppArchiver) override final;
     virtual void DILIGENT_CALL_TYPE CreateSerializationDevice(const SerializationDeviceCreateInfo& CreateInfo, ISerializationDevice** ppDevice) override final;
     virtual void DILIGENT_CALL_TYPE CreateDefaultShaderSourceStreamFactory(const Char* SearchDirectories, struct IShaderSourceInputStreamFactory** ppShaderSourceFactory) const override final;
-    virtual Bool DILIGENT_CALL_TYPE RemoveDeviceData(IArchive* pSrcArchive, RENDER_DEVICE_TYPE_FLAGS DeviceFlags, IFileStream* pStream) const override final;
-    virtual Bool DILIGENT_CALL_TYPE AppendDeviceData(IArchive* pSrcArchive, RENDER_DEVICE_TYPE_FLAGS DeviceFlags, IArchive* pDeviceArchive, IFileStream* pStream) const override final;
+    virtual Bool DILIGENT_CALL_TYPE RemoveDeviceData(IArchive* pSrcArchive, ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags, IFileStream* pStream) const override final;
+    virtual Bool DILIGENT_CALL_TYPE AppendDeviceData(IArchive* pSrcArchive, ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags, IArchive* pDeviceArchive, IFileStream* pStream) const override final;
     virtual Bool DILIGENT_CALL_TYPE PrintArchiveContent(IArchive* pArchive) const override final;
 
 private:
@@ -145,7 +145,7 @@ void ArchiverFactoryImpl::CreateDefaultShaderSourceStreamFactory(const Char* Sea
     Diligent::CreateDefaultShaderSourceStreamFactory(SearchDirectories, ppShaderSourceFactory);
 }
 
-Bool ArchiverFactoryImpl::RemoveDeviceData(IArchive* pSrcArchive, RENDER_DEVICE_TYPE_FLAGS DeviceFlags, IFileStream* pStream) const
+Bool ArchiverFactoryImpl::RemoveDeviceData(IArchive* pSrcArchive, ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags, IFileStream* pStream) const
 {
     DEV_CHECK_ERR(pSrcArchive != nullptr, "pSrcArchive must not be null");
     DEV_CHECK_ERR(pStream != nullptr, "pStream must not be null");
@@ -173,7 +173,7 @@ Bool ArchiverFactoryImpl::RemoveDeviceData(IArchive* pSrcArchive, RENDER_DEVICE_
     }
 }
 
-Bool ArchiverFactoryImpl::AppendDeviceData(IArchive* pSrcArchive, RENDER_DEVICE_TYPE_FLAGS DeviceFlags, IArchive* pDeviceArchive, IFileStream* pStream) const
+Bool ArchiverFactoryImpl::AppendDeviceData(IArchive* pSrcArchive, ARCHIVED_DEVICE_TYPE_FLAGS DeviceFlags, IArchive* pDeviceArchive, IFileStream* pStream) const
 {
     DEV_CHECK_ERR(pSrcArchive != nullptr, "pSrcArchive must not be null");
     DEV_CHECK_ERR(pDeviceArchive != nullptr, "pDeviceArchive must not be null");
