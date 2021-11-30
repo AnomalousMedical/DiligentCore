@@ -386,6 +386,14 @@ struct RayTracingPipelineDesc
     /// Zero means no tracing of rays at all, only ray-gen shader will be executed.
     /// See DeviceProperties::MaxRayTracingRecursionDepth.
     Uint8   MaxRecursionDepth  DEFAULT_INITIALIZER(0);
+    
+#if DILIGENT_CPP_INTERFACE
+    bool operator==(const RayTracingPipelineDesc &Rhs) const
+    {
+        return ShaderRecordSize  == Rhs.ShaderRecordSize &&
+               MaxRecursionDepth == Rhs.MaxRecursionDepth;
+    }
+#endif
 };
 typedef struct RayTracingPipelineDesc RayTracingPipelineDesc;
 
@@ -622,6 +630,22 @@ struct TilePipelineDesc
 
     /// Render target formats.
     TEXTURE_FORMAT RTVFormats[DILIGENT_MAX_RENDER_TARGETS] DEFAULT_INITIALIZER({});
+    
+#if DILIGENT_CPP_INTERFACE
+    bool operator==(const TilePipelineDesc& Rhs) const
+    {
+        if (NumRenderTargets != Rhs.NumRenderTargets ||
+            SampleCount      != Rhs.SampleCount)
+            return false;
+
+        for (Uint8 i = 0; i < NumRenderTargets; ++i)
+        {
+            if (RTVFormats[i] != Rhs.RTVFormats[i])
+                return false;
+        }
+        return true;
+    }
+#endif
 };
 typedef struct TilePipelineDesc TilePipelineDesc;
 
