@@ -38,8 +38,26 @@
 
 DILIGENT_BEGIN_NAMESPACE(Diligent)
 
+/// This enumeration is used by PipelineStateCacheDesc structure.
+DILIGENT_TYPED_ENUM(PSO_CACHE_MODE, Uint8)
+{
+    /// PSO cache will be used only to load PSO from it.
+    PSO_CACHE_MODE_LOAD  = 1u << 0,
+        
+    /// PSO cache will be used only to store PSO.
+    PSO_CACHE_MODE_STORE = 1u << 1,
+};
+DEFINE_FLAG_ENUM_OPERATORS(PSO_CACHE_MODE);
+
 /// Pipeline state cache description
 struct PipelineStateCacheDesc DILIGENT_DERIVE(DeviceObjectAttribs)
+
+    /// \note Metal backend allows to generate cache in development time
+    ///       and load from cache in release.
+    ///       Vulkan PSO cache depends on GPU device, driver version and other parameters,
+    ///       so cache can not be generated in development time.
+    ///       Direct3D12 ...
+    PSO_CACHE_MODE Mode DEFAULT_INITIALIZER(PSO_CACHE_MODE_LOAD | PSO_CACHE_MODE_STORE);
 
     // ImmediateContextMask ?
 };

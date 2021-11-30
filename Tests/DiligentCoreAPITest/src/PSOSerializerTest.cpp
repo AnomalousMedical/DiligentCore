@@ -155,7 +155,7 @@ namespace
 struct RandomValue
 {
     template <typename T>
-    std::enable_if_t<std::is_floating_point_v<T>> operator()(T& Value, T minValue, T maxValue, T Step = T(1))
+    std::enable_if_t<std::is_floating_point<T>::value> operator()(T& Value, T minValue, T maxValue, T Step = T(1))
     {
         VERIFY_EXPR(minValue < maxValue);
         VERIFY_EXPR(Step != T(0));
@@ -168,7 +168,7 @@ struct RandomValue
     }
 
     template <typename T>
-    std::enable_if_t<!std::is_floating_point_v<T>> operator()(T& Value, T minValue, Uint64 maxValue, Uint64 Step = 1)
+    std::enable_if_t<!std::is_floating_point<T>::value> operator()(T& Value, T minValue, Uint64 maxValue, Uint64 Step = 1)
     {
         VERIFY_EXPR(static_cast<T>(maxValue) > minValue);
         VERIFY_EXPR(Step != 0);

@@ -45,17 +45,64 @@ PipelineStateCacheD3D12Impl::PipelineStateCacheD3D12Impl(IReferenceCounters*    
     }
 // clang-format on
 {
-    // AZ TODO
+    auto hr = pRenderDeviceD3D12->GetD3D12Device1()->CreatePipelineLibrary(nullptr, 0, IID_PPV_ARGS(&m_pLibrary));
+    if (FAILED(hr))
+        LOG_ERROR_AND_THROW("Failed to create D3D12 pipeline cache");
 }
 
 PipelineStateCacheD3D12Impl::~PipelineStateCacheD3D12Impl()
 {
+    // D3D12 object can only be destroyed when it is no longer used by the GPU
+    GetDevice()->SafeReleaseDeviceObject(std::move(m_pLibrary), ~Uint64{0});
+}
+
+bool PipelineStateCacheD3D12Impl::LoadComputePipeline(const std::wstring& Name, const D3D12_COMPUTE_PIPELINE_STATE_DESC& Desc, CComPtr<ID3D12DeviceChild>& d3d12PSO)
+{
+    if ((m_Desc.Mode & PSO_CACHE_MODE_LOAD) != 0)
+    {
+        auto hr = m_pLibrary->LoadComputePipeline(Name.c_str(), &Desc, IID_PPV_ARGS(&d3d12PSO));
+        return SUCCEEDED(hr);
+    }
+    return false;
+}
+
+bool PipelineStateCacheD3D12Impl::LoadGraphicsPipeline(const std::wstring& Name, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& Desc, CComPtr<ID3D12DeviceChild>& d3d12PSO)
+{
+    if ((m_Desc.Mode & PSO_CACHE_MODE_LOAD) != 0)
+    {
+        auto hr = m_pLibrary->LoadGraphicsPipeline(Name.c_str(), &Desc, IID_PPV_ARGS(&d3d12PSO));
+        return SUCCEEDED(hr);
+    }
+    return false;
+}
+
+bool PipelineStateCacheD3D12Impl::StorePipeline(const std::wstring& Name, ID3D12DeviceChild* pPSO)
+{
+    if ((m_Desc.Mode & PSO_CACHE_MODE_STORE) == 0)
+        return false;
+
+    auto hr = m_pLibrary->StorePipeline(Name.c_str(), static_cast<ID3D12PipelineState*>(pPSO));
+    if (FAILED(hr))
+        LOG_INFO_MESSAGE("Failed to add pipeline to cache");
+
+    return SUCCEEDED(hr);
 }
 
 void PipelineStateCacheD3D12Impl::GetData(IDataBlob** ppBlob)
 {
     DEV_CHECK_ERR(ppBlob != nullptr, "ppBlob must not be null");
     *ppBlob = nullptr;
+
+    auto pDataBlob = DataBlobImpl::Create(m_pLibrary->GetSerializedSize());
+
+    auto hr = m_pLibrary->Serialize(pDataBlob->GetDataPtr(), pDataBlob->GetSize());
+    if (FAILED(hr))
+    {
+        LOG_ERROR_MESSAGE("Failed to serialize D3D12 pipeline cache");
+        return;
+    }
+
+    *ppBlob = pDataBlob.Detach();
 }
 
 } // namespace Diligent
