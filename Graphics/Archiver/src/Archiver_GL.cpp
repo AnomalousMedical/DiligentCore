@@ -34,6 +34,11 @@
 #include "ShaderGLImpl.hpp"
 #include "DeviceObjectArchiveGLImpl.hpp"
 
+#if !DILIGENT_NO_GLSLANG
+#    include "GLSLUtils.hpp"
+#    include "GLSLangUtils.hpp"
+#endif
+
 namespace Diligent
 {
 
@@ -143,5 +148,66 @@ void SerializationDeviceImpl::GetPipelineResourceBindingsGL(const PipelineResour
         pSignature->ShiftBindings(BaseBindings);
     }
 }
+
+#if !DILIGENT_NO_GLSLANG
+void SerializableShaderImpl::CreateShaderGL(IReferenceCounters* pRefCounters, ShaderCreateInfo& ShaderCI, String& CompilationLog)
+{
+    GLSLangUtils::GLSLtoSPIRVAttribs Attribs;
+
+    Attribs.ShaderType = ShaderCI.Desc.ShaderType;
+#    if GL_SUPPORTED
+    Attribs.Version = GLSLangUtils::SpirvVersion::GL;
+#    elif GLES_SUPPORTED
+    Attribs.Version = GLSLangUtils::SpirvVersion::GLES;
+#    endif
+
+    // Mem leak when used RefCntAutoPtr
+    IDataBlob* pLog          = nullptr;
+    Attribs.ppCompilerOutput = &pLog;
+
+    try
+    {
+        if (ShaderCI.SourceLanguage == SHADER_SOURCE_LANGUAGE_HLSL)
+        {
+            if (GLSLangUtils::HLSLtoSPIRV(ShaderCI, Attribs.Version, "", Attribs.ppCompilerOutput).empty())
+                LOG_ERROR_AND_THROW("HLSLtoSPIRV failed");
+        }
+        else if (ShaderCI.SourceLanguage == SHADER_SOURCE_LANGUAGE_DEFAULT ||
+                 ShaderCI.SourceLanguage == SHADER_SOURCE_LANGUAGE_GLSL)
+        {
+            const auto GLSLSourceString = BuildGLSLSourceString(ShaderCI, m_pDevice->GetDeviceInfo(), m_pDevice->GetAdapterInfo(), TargetGLSLCompiler::glslang, "");
+
+            Attribs.ShaderSource  = GLSLSourceString.c_str();
+            Attribs.SourceCodeLen = static_cast<int>(GLSLSourceString.size());
+            Attribs.Macros        = ShaderCI.Macros;
+
+            if (GLSLangUtils::GLSLtoSPIRV(Attribs).empty())
+                LOG_ERROR_AND_THROW("GLSLtoSPIRV failed");
+        }
+        else if (ShaderCI.SourceLanguage == SHADER_SOURCE_LANGUAGE_GLSL_VERBATIM)
+        {
+            if (ShaderCI.Macros != nullptr)
+                LOG_WARNING_MESSAGE("Shader macros are ignored when compiling GLSL verbatim in OpenGL backend");
+
+            Attribs.ShaderSource  = ShaderCI.Source;
+            Attribs.SourceCodeLen = static_cast<int>(ShaderCI.SourceLength);
+
+            if (GLSLangUtils::GLSLtoSPIRV(Attribs).empty())
+                LOG_ERROR_AND_THROW("GLSLtoSPIRV failed");
+        }
+    }
+    catch (...)
+    {
+        if (pLog && pLog->GetConstDataPtr())
+        {
+            CompilationLog += "Failed to compile OpenGL shader:\n";
+            CompilationLog += static_cast<const char*>(pLog->GetConstDataPtr());
+        }
+    }
+
+    if (pLog)
+        pLog->Release();
+}
+#endif
 
 } // namespace Diligent

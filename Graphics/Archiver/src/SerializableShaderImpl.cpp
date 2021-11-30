@@ -77,7 +77,9 @@ SerializableShaderImpl::SerializableShaderImpl(IReferenceCounters*        pRefCo
             case RENDER_DEVICE_TYPE_GL:
             case RENDER_DEVICE_TYPE_GLES:
                 // shader compilation is not supported for OpenGL, use GetCreateInfo() to get source
-                // AZ TODO: validate source using glslang
+#if (GL_SUPPORTED || GLES_SUPPORTED) && !DILIGENT_NO_GLSLANG
+                CreateShaderGL(pRefCounters, ShaderCI, CompilationLog);
+#endif
                 break;
 #if VULKAN_SUPPORTED
             case RENDER_DEVICE_TYPE_VULKAN:
